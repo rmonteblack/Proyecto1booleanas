@@ -1,26 +1,155 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simplificador Lógico</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+{% extends "base.html" %}
 
-    <div class="container mt-5">
+{% block title %}Inicio - Evaluador{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+
         <h1 class="text-center mb-4">Evaluador de Expresiones Lógicas</h1>
 
-        <form method="POST" action="/evaluar" class="col-md-6 mx-auto">
-            <div class="mb-3">
-                <label for="expresion" class="form-label">Ingrese su expresión lógica:</label>
-                <input type="text" name="expresion" id="expresion" class="form-control" placeholder="(-p || q) -> r" required>
-            </div>
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary">Evaluar</button>
-            </div>
-        </form>
-    </div>
+        <div class="card shadow-sm">
+            <div class="card-body">
 
-</body>
-</html>
+                <form method="POST" action="/evaluar" onsubmit="return traducirYEnviar();">
+
+                    <div class="mb-3">
+                        <label for="expresion_visual" class="form-label">Construye tu expresión lógica:</label>
+                        <input type="text" id="expresion_visual" class="form-control form-control-lg"
+                               placeholder="Genera variables y usa los operadores..." readonly>
+                    </div>
+
+                    <input type="hidden" name="expresion" id="expresion_oculta">
+
+                    <div class="mb-3">
+                        <label for="num_variables" class="form-label"><strong>Número de variables:</strong></label>
+                        <div class="input-group">
+                            <input type="number" id="num_variables" class="form-control" value="3" min="1" max="12">
+                            <button class="btn btn-outline-secondary" type="button" onclick="actualizarBotonesVariables()">Generar</button>
+                        </div>
+                        <div class="form-text">
+                            Ingresa un número (1-12) y presiona "Generar".
+                        </div>
+                    </div>
+
+                    <div class="mb-2" id="botones-variables-container">
+                        <strong class="me-2">Variables:</strong>
+                        <div id="botones-variables" class="d-inline">
+                            </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-column me-3">
+                            <div class="mb-2">
+                                <strong class="me-2">Operadores:</strong>
+                                <button type="button" class="btn btn-outline-warning" onclick="agregar('¬')">¬ (No)</button>
+                                <button type="button" class="btn btn-outline-warning" onclick="agregar('∧')">∧ (Y)</button>
+                                <button type="button" class="btn btn-outline-warning" onclick="agregar('∨')">∨ (O)</button>
+                                <button type="button" class="btn btn-outline-warning" onclick="agregar('→')">→ (Si...)</button>
+                                <button type="button" class="btn btn-outline-warning" onclick="agregar('↔')">↔ (Si y solo si)</button>
+                            </div>
+                            <div class="mb-2">
+                                <strong class="me-2">Agrupación:</strong>
+                                <button type="button" class="btn btn-outline-secondary" onclick="agregar('(')">(</button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="agregar(')')">)</button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-column justify-content-center ms-auto">
+                            <button type="button" class="btn btn-danger btn-lg mb-2" onclick="borrar()">⌫</button>
+                            <button type="button" class="btn btn-danger btn-lg" onclick="limpiar()">Limpiar</button>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Evaluar</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const input = document.getElementById('expresion_visual');
+    // Usaremos de 'p' a 'z' como nuestras variables base
+    const variablesBase = ['p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+    // (MODIFICADA) Esta función lee el campo de número
+    function actualizarBotonesVariables() {
+        const numInput = document.getElementById('num_variables');
+        let num = parseInt(numInput.value);
+
+        // Validación
+        if (isNaN(num) || num < 1) {
+            num = 1;
+            numInput.value = 1;
+        }
+        if (num > variablesBase.length) {
+            num = variablesBase.length;
+            numInput.value = num;
+            alert('El máximo de variables es ' + variablesBase.length);
+        }
+
+        const container = document.getElementById('botones-variables');
+        container.innerHTML = ''; // Limpiar botones anteriores
+
+        for (let i = 0; i < num; i++) {
+            const variable = variablesBase[i];
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'btn btn-outline-primary me-1';
+            btn.innerText = variable;
+            btn.onclick = function() { agregar(variable); };
+            container.appendChild(btn);
+        }
+    }
+
+    // Funciones de control (sin cambios)
+    function agregar(valor) {
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        input.value = input.value.slice(0, start) + valor + input.value.slice(end);
+        input.setSelectionRange(start + valor.length, start + valor.length);
+        input.focus();
+    }
+
+    function borrar() {
+        // ... (código de borrar sin cambios) ...
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        if (start === end && start > 0) {
+            input.value = input.value.slice(0, start - 1) + input.value.slice(end);
+            input.setSelectionRange(start - 1, start - 1);
+        } else {
+            input.value = input.value.slice(0, start) + input.value.slice(end);
+            input.setSelectionRange(start, start);
+        }
+        input.focus();
+    }
+
+    function limpiar() {
+        input.value = '';
+        input.focus();
+    }
+
+    // Función de traducción (sin cambios)
+    function traducirYEnviar() {
+        // ... (código de traducción sin cambios) ...
+        const visual = input.value;
+        let traducido = visual.replace(/¬/g, '-');
+        traducido = traducido.replace(/∧/g, '^');
+        traducido = traducido.replace(/∨/g, '||');
+        traducido = traducido.replace(/→/g, '->');
+        traducido = traducido.replace(/↔/g, '<->');
+        document.getElementById('expresion_oculta').value = traducido;
+        return true;
+    }
+
+    // (MODIFICADO) Llamar a la función al cargar la página para mostrar los botones por defecto (3)
+    document.addEventListener('DOMContentLoaded', function() {
+        actualizarBotonesVariables();
+    });
+</script>
+{% endblock %}

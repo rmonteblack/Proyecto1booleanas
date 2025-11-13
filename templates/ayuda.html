@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Ayuda - Operadores{% endblock %}
+
+{% block content %}
+    <h1 class="text-center mb-4">Guía de Operadores Lógicos</h1>
+    <p class="lead text-center">Usa los siguientes símbolos para construir tu expresión lógica.</p>
+
+    <div class="col-md-10 mx-auto">
+        <table class="table table-bordered table-striped fs-5">
+            <thead class="table-dark">
+                <tr>
+                    <th>Símbolo</th>
+                    <th>Operador</th>
+                    <th>Significado</th>
+                    <th>Ejemplo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>-</code></td>
+                    <td>Negación (NOT)</td>
+                    <td>"No"</td>
+                    <td><code>-p</code></td>
+                </tr>
+                <tr>
+                    <td><code>||</code></td>
+                    <td>Disyunción (OR)</td>
+                    <td>"... o ..."</td>
+                    <td><code>p || q</code></td>
+                </tr>
+                <tr>
+                    <td><code>^</code></td>
+                    <td>Conjunción (AND)</td>
+                    <td>"... y ..."</td>
+                    <td><code>p ^ q</code></td>
+                </tr>
+                <tr>
+                    <td><code>-></code></td>
+                    <td>Implicación (Condicional)</td>
+                    <td>"Si ... entonces ..."</td>
+                    <td><code>p -> q</code></td>
+                </tr>
+                <tr>
+                    <td><code>&lt;-></code></td>
+                    <td>Bicondicional</td>
+                    <td>"... si y solo si ..."</td>
+                    <td><code>p &lt;-> q</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -14,18 +14,25 @@ def parentesis_balanceados(expresion):
 
 def evaluar(expresion, valores):
     expr = expresion
+
+    # 1. Reemplazamos los operadores lógicos ANTES de poner los valores
+    expr = expr.replace("<->", "==")
+    expr = expr.replace("->", "<=")  # <-- ¡ESTE ES EL CAMBIO PRINCIPAL!
+    expr = expr.replace("^", " and ") # Asumiendo que ^ es AND
+    expr = expr.replace("||", " or ")
+    expr = expr.replace("-", " not ") # <-- Un reemplazo más robusto
+
+    # 2. Reemplazamos las variables por sus valores
     for var, val in valores.items():
+        # Usamos regex para asegurar que solo reemplazamos la variable (p.ej. 'p' y no 'print')
         expr = re.sub(rf'\b{var}\b', str(val), expr)
 
-    expr = expr.replace("<->", "==")
-    expr = expr.replace("->", " or not ")
-    expr = expr.replace("^", " and ")
-    expr = expr.replace("||", " or ")
-    expr = re.sub(r'-\s*(True|False)', r'not \1', expr)
-
+    # 3. Evaluamos la expresión final de Python
     try:
-        return eval(expr)
-    except Exception:
+        # bool() asegura que el resultado de eval() sea True/False
+        return bool(eval(expr))
+    except Exception as e:
+        print(f"Error al evaluar: {expr} | Error: {e}") # Añadido para depurar
         return "Error"
 
 def generar_tabla_html(expresion, variables):

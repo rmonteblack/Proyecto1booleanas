@@ -10,9 +10,16 @@ def home():
 @app.route('/evaluar', methods=['POST'])
 def evaluar():
     expresion = request.form['expresion']
-    variables = [v for v in 'pqrstuvwxyz' if v in expresion]
+    # Esta línea encuentra las variables automáticamente
+    variables = sorted(list(set(v for v in 'pqrstuvwxyz' if v in expresion)))
     tabla_html = generar_tabla_html(expresion, variables)
     return render_template('resultado.html', expresion=expresion, tabla_html=tabla_html)
+
+# --- AÑADE ESTA NUEVA RUTA ---
+@app.route('/ayuda')
+def ayuda():
+    return render_template('ayuda.html')
+# -------------------------------
 
 if __name__ == '__main__':
     app.run(debug=True)
